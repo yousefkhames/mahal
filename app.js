@@ -40,6 +40,8 @@ const I18N = {
     confirmReset: "Reset the store to the demo branding and catalog?",
     confirmDelete: "Delete this product?",
     copied: "Order copied to clipboard.",
+    copyFail: "Could not copy. Long-press the message and copy it manually.",
+    confirmImport: "Replace your current store settings and products with this file?",
     newOrder: "New order", orderFrom: "From", items: "Items", qty: "Qty",
     chest: "Chest", length: "Length", footTag: "white-label storefront, free and open source",
     free: "Free", outOfRange: "Pick a color and size first."
@@ -82,6 +84,8 @@ const I18N = {
     confirmReset: "ترجع المتجر لبراند ومنتجات الديمو؟",
     confirmDelete: "تمسح المنتج ده؟",
     copied: "اتنسخ.",
+    copyFail: "مقدرتش أنسخ. اضغط مطوّلاً على الرسالة وانسخها يدوياً.",
+    confirmImport: "استبدال إعدادات المتجر والمنتجات بالملف ده؟",
     newOrder: "طلب جديد", orderFrom: "من", items: "القطع", qty: "العدد",
     chest: "الصدر", length: "الطول", footTag: "متجر أبيض اللافتة، مجاني ومفتوح المصدر",
     free: "مجاني", outOfRange: "اختار اللون والمقاس الأول."
@@ -100,9 +104,45 @@ const load = (k, fb) => { try { const v = JSON.parse(localStorage.getItem(k)); r
 const save = (k, v) => localStorage.setItem(k, JSON.stringify(v));
 const deep = o => JSON.parse(JSON.stringify(o));
 
-let settings = Object.assign(deep(MAHAL_DEFAULTS.settings), load(LS.settings, {}));
-let products = load(LS.products, null) || deep(MAHAL_DEFAULTS.products);
-let cart = load(LS.cart, []);
+/* ---------- sanitising: stored or imported data is untrusted (it is rendered with innerHTML) ---------- */
+const latin = v => String(v ?? "").replace(/[\u0660-\u0669]/g, c => c.charCodeAt(0) - 0x660).replace(/[\u06F0-\u06F9]/g, c => c.charCodeAt(0) - 0x6F0);
+const cleanStr = (v, max = 200) => String(v ?? "").replace(/[<>&"'`]/g, "").slice(0, max);
+const cleanBi = (o, fb) => ({ en: cleanStr(o && o.en) || (fb && fb.en) || "", ar: cleanStr(o && o.ar) || (fb && fb.ar) || "" });
+const cleanColor = c => /^#[0-9a-fA-F]{3,8}$/.test(String(c)) ? String(c) : null;
+const cleanNum = (v, fb = 0) => { const n = parseFloat(latin(v).replace(",", ".")); return isFinite(n) && n >= 0 && n < 1e9 ? n : fb; };
+function cleanProducts(arr){
+  if (!Array.isArray(arr)) return null;
+  const out = arr.filter(p => p && typeof p === "object" && p.id && p.name && p.name.en).slice(0, 500).map(p => ({
+    id: cleanStr(p.id, 60).replace(/[^\w-]/g, "") || ("p" + Math.random().toString(36).slice(2, 8)),
+    type: ["tee", "hoodie", "pants", "jacket", "dress", "cap"].includes(p.type) ? p.type : (cleanStr(p.type, 20).replace(/[^\w-]/g, "") || "tee"),
+    cat: cleanStr(p.cat, 40).replace(/[^\w-]/g, "") || "all",
+    price: cleanNum(p.price),
+    name: cleanBi(p.name), desc: cleanBi(p.desc),
+    sizes: (Array.isArray(p.sizes) ? p.sizes : []).map(x => cleanStr(x, 12)).filter(Boolean).slice(0, 20),
+    colors: (Array.isArray(p.colors) ? p.colors : []).map(cleanColor).filter(Boolean).slice(0, 20),
+  }));
+  out.forEach(p => { if (!p.sizes.length) p.sizes = ["One size"]; if (!p.colors.length) p.colors = ["#23202b"]; });
+  return out;
+}
+function cleanSettings(raw){
+  const base = deep(MAHAL_DEFAULTS.settings), r = raw && typeof raw === "object" ? raw : {};
+  const s = Object.assign(base, r);
+  s.name = cleanBi(r.name, base.name); s.tagline = cleanBi(r.tagline, base.tagline);
+  s.whatsapp = cleanStr(latin(r.whatsapp ?? base.whatsapp), 20);
+  s.deliveryFee = cleanNum(s.deliveryFee);
+  s.lang = s.lang === "ar" ? "ar" : "en";
+  const lg = r.logo && typeof r.logo === "object" ? r.logo : base.logo;
+  s.logo = { type: ["image", "emoji", "letter"].includes(lg.type) ? lg.type : "letter", value: cleanStr(lg.value, 8),
+    image: /^data:image\/(png|jpe?g|webp|gif|svg\+xml);base64,[A-Za-z0-9+\/=]+$/.test(lg.image || "") ? lg.image : "" };
+  const bc = r.colors || base.colors;
+  s.colors = { primary: cleanColor(bc.primary) || base.colors.primary, accent: cleanColor(bc.accent) || base.colors.accent };
+  return s;
+}
+/* wa.me needs country code, no leading 0 or 00: "010..." -> "2010...", "0020..." -> "20..." */
+const waDigits = (cc => raw => { let d = latin(raw).replace(/\D/g, ""); if (d.startsWith("00")) d = d.slice(2); else if (d.startsWith("0")) d = cc + d.slice(1); return d; })("20");
+let settings = cleanSettings(load(LS.settings, {}));
+let products = cleanProducts(load(LS.products, null)) || deep(MAHAL_DEFAULTS.products);
+let cart = (c => Array.isArray(c) ? c.filter(i => i && typeof i === "object").map(i => ({ ...i, name: cleanBi(i.name), size: cleanStr(i.size, 12), color: cleanColor(i.color) || "#23202b", price: cleanNum(i.price), qty: Math.max(1, Math.min(99, Math.floor(cleanNum(i.qty, 1))))})) : [])(load(LS.cart, []));
 let lang = localStorage.getItem(LS.lang) || settings.lang || "en";
 let theme = localStorage.getItem(LS.theme) || "light";
 let activeCat = "all", query = "", cur = null, selColor = null, selSize = null, qty = 1, editingId = null;
@@ -280,12 +320,12 @@ function openCheckout(){
 }
 function syncWa(){
   const no = "M-" + Date.now().toString(36).toUpperCase();
-  const num = (settings.whatsapp || "").replace(/\D/g, "");
+  const num = waDigits(settings.whatsapp);
   $("#waSend").href = `https://wa.me/${num}?text=${encodeURIComponent(orderText(no))}`;
   $("#waSend").dataset.no = no;
 }
 function sendOrder(){
-  const wa = (settings.whatsapp || "").replace(/\D/g, "");
+  const wa = waDigits(settings.whatsapp);
   if (!wa || wa === "201000000000") { $("#coErr").textContent = t("needWa"); $("#coErr").hidden = false; return false; }
   if (!$("#coName").value.trim()) { $("#coErr").textContent = t("needName"); $("#coErr").hidden = false; return false; }
   if (!$("#coPhone").value.trim()) { $("#coErr").textContent = t("needPhone"); $("#coErr").hidden = false; return false; }
@@ -358,8 +398,10 @@ function exportBrand(){
 }
 function applyBrandData(d){
   if (!d || d.app !== "mahal" || !d.settings || !Array.isArray(d.products)) return false;
-  settings = Object.assign(deep(MAHAL_DEFAULTS.settings), d.settings);
-  products = d.products.filter(p => p && p.id && p.name && p.name.en);
+  const np = cleanProducts(d.products);
+  if (!np || !np.length || !confirm(t("confirmImport"))) return false;
+  settings = cleanSettings(d.settings);
+  products = np;
   save(LS.settings, settings); save(LS.products, products);
   lang = settings.lang; localStorage.setItem(LS.lang, lang);
   boot(); fillSettings(); toast(t("imported"));
@@ -433,8 +475,12 @@ $("#checkoutBtn").onclick = openCheckout;
 $("#waSend").onclick = e => { if (!sendOrder()) e.preventDefault(); };
 $("#copyOrder").onclick = async () => {
   syncWa();
-  try { await navigator.clipboard.writeText(orderText($("#waSend").dataset.no)); toast(t("copied")); }
-  catch { toast(t("copied")); }
+  const txt = orderText($("#waSend").dataset.no);
+  try { await navigator.clipboard.writeText(txt); toast(t("copied")); return; } catch {}
+  try {
+    const ta = document.createElement("textarea"); ta.value = txt; ta.style.cssText = "position:fixed;opacity:0"; document.body.appendChild(ta);
+    ta.select(); const ok = document.execCommand("copy"); ta.remove(); toast(t(ok ? "copied" : "copyFail"));
+  } catch { toast(t("copyFail")); }
 };
 $("#saveSettings").onclick = () => {
   const s = settings;
@@ -445,7 +491,7 @@ $("#saveSettings").onclick = () => {
   s.colors = { primary: $("#sColorA").value, accent: $("#sColorB").value };
   s.currency = $("#sCurrency").value;
   s.lang = $("#sLang").value;
-  s.whatsapp = $("#sWa").value.trim(); s.deliveryFee = Math.max(0, +$("#sFee").value || 0);
+  s.whatsapp = $("#sWa").value.trim(); s.deliveryFee = cleanNum($("#sFee").value);
   s.note = { en: $("#sNoteEn").value, ar: $("#sNoteAr").value };
   save(LS.settings, s);
   boot(); fillSettings(); toast(t("saved"));

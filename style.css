@@ -30,12 +30,12 @@ html[data-theme="dark"]{
 html{scroll-behavior:smooth}
 body{
   margin:0;
-  font-family:system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;
+  font-family:"Cairo",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;
   background:var(--bg);
   color:var(--ink);
   line-height:1.55;
 }
-h1,h2,h3,.brand-name{font-family:Georgia,"Times New Roman",serif;font-weight:600}
+h1,h2,h3,.brand-name{font-family:Georgia,"CairoAr","Times New Roman",serif;font-weight:600}
 img{max-width:100%}
 button{font:inherit;color:inherit}
 input,select,textarea{

@@ -62,3 +62,14 @@ Run the tests: serve the folder and open `tests/index.html`. The page title show
 
 ## License
 MIT
+
+## Fonts and limits (round 2)
+
+- Cairo (SIL OFL) is bundled in `fonts/` (woff2) and precached by the service worker, so Arabic renders the same offline.
+
+## Round 2 review notes
+- Stored and imported data is sanitised before it is rendered (names, colours, logo, numbers); a brand import now asks for confirmation.
+- Local numbers like 010... are converted to wa.me/2010...; Arabic digits work in the WhatsApp and fee fields.
+- Copy order falls back to a hidden textarea and says so honestly if copying fails.
+- Test: `python3 -m http.server 8750` then `node tests/e2e.cjs` (needs puppeteer-core).
+- Limit: WhatsApp links are only verified as generated URLs.
