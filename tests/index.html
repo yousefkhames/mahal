@@ -1,0 +1,179 @@
+<!doctype html><meta charset="utf-8"><title>running</title>
+<iframe id="f" src="../index.html" style="width:100vw;height:100vh;border:0"></iframe>
+<script>
+// Click-through regression suite. Serve the repo folder and open tests/index.html; the title becomes PASS or FAIL with details.
+const f = document.getElementById("f"), errs = [], fails = [];
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const ok = (c, m) => { if (!c) fails.push(m); };
+let loads = 0;
+f.onload = async () => {
+  loads++;
+  const W = f.contentWindow, D = W.document, q = s => D.querySelector(s), qq = s => [...D.querySelectorAll(s)];
+  if (loads === 1) { W.localStorage.clear(); W.location.reload(); return; }
+  if (loads === 2) { await phaseA(W, D, q, qq); if (!fails.length) { W.location.reload(); return; } finish(); return; }
+  if (loads === 3) { await phaseB(W, D, q, qq); finish(); return; }
+};
+async function phaseA(W, D, q, qq){
+  try {
+    await sleep(400);
+    W.addEventListener("error", e => errs.push(e.message));
+    // --- English pass ---
+    ok(D.documentElement.dir === "ltr", "en dir");
+    ok(D.documentElement.scrollWidth <= W.innerWidth + 1, "en home overflow " + D.documentElement.scrollWidth + ">" + W.innerWidth);
+    ok(qq("#grid .card").length === 12, "12 default products, got " + qq("#grid .card").length);
+    ok(q("#heroTitle").textContent.length > 5, "hero title");
+    ok(q("#brandName").textContent === "Mahal", "default brand");
+
+    // category filter
+    const chips = qq("#cats .chip");
+    ok(chips.length === 8, "8 category chips, got " + chips.length);
+    chips[1].click(); await sleep(60);
+    ok(qq("#grid .card").length === 2, "tees filter = 2, got " + qq("#grid .card").length);
+    chips[0].click(); await sleep(60);
+
+    // search
+    q("#search").value = "hoodie"; q("#search").dispatchEvent(new W.Event("input", { bubbles: true })); await sleep(60);
+    ok(qq("#grid .card").length === 1, "search hoodie = 1, got " + qq("#grid .card").length);
+    q("#search").value = "zzzzz"; q("#search").dispatchEvent(new W.Event("input", { bubbles: true })); await sleep(60);
+    ok(qq("#grid .card").length === 0 && !q("#empty").hidden, "empty state");
+    q("#search").value = ""; q("#search").dispatchEvent(new W.Event("input", { bubbles: true })); await sleep(60);
+
+    // product modal + add to cart
+    qq("#grid .card")[1].click(); await sleep(80); // hoodie 750
+    ok(!q("#pdp").hidden, "pdp opens");
+    ok(q("#pdpName").textContent === "Oversized Hoodie", "pdp name");
+    q("#addToCart").click(); await sleep(40);
+    ok(q("#cartCount").hidden, "badge still hidden without size");
+    qq("#pdpSizes .size-pill")[1].click(); await sleep(30); // L
+    q("#qtyPlus").click(); await sleep(30); // qty 2
+    q("#addToCart").click(); await sleep(60);
+    ok(!q("#cartCount").hidden && q("#cartCount").textContent === "2", "badge 2, got " + q("#cartCount").textContent);
+
+    qq("#grid .card")[0].click(); await sleep(80); // tee 350
+    qq("#pdpSizes .size-pill")[0].click(); await sleep(30);
+    q("#addToCart").click(); await sleep(60);
+    ok(q("#cartCount").textContent === "3", "badge 3");
+
+    // cart math: 2*750 + 1*350 = 1850, fee 60 -> 1910
+    q("#cartBtn").click(); await sleep(80);
+    ok(qq("#cartItems .cart-row").length === 2, "2 cart rows");
+    ok(q("#subTotal").textContent.replace(/[٬,]/g, ",").includes("1,850"), "subtotal 1850, got " + q("#subTotal").textContent);
+    ok(q("#grandTotal").textContent.replace(/[٬,]/g, ",").includes("1,910"), "total 1910, got " + q("#grandTotal").textContent);
+    q('[data-cart="-0"]').click(); await sleep(50);
+    ok(q("#subTotal").textContent.replace(/[٬,]/g, ",").includes("1,100"), "subtotal 1100 after minus, got " + q("#subTotal").textContent);
+
+    // checkout validation + whatsapp link
+    q("#checkoutBtn").click(); await sleep(80);
+    q("#waSend").click(); await sleep(60);
+    ok(!q("#coErr").hidden, "name error shown");
+    ok(q("#coDone").hidden, "still on form");
+    q("#coName").value = "Test Buyer"; q("#coPhone").value = "01001234567";
+    q("#coName").dispatchEvent(new W.Event("input", { bubbles: true }));
+    await sleep(40);
+    const href = q("#waSend").href;
+    ok(href.startsWith("https://wa.me/201000000000?text="), "wa link target " + href.slice(0, 40));
+    ok(decodeURIComponent(href).includes("Test Buyer"), "wa text has name");
+    ok(decodeURIComponent(href).includes("Hoodie") || decodeURIComponent(href).includes("Tee"), "wa text has item");
+    q("#waSend").click(); await sleep(80);
+    ok(!q("#coDone").hidden, "done screen");
+    ok(q("#cartCount").hidden, "cart cleared after order");
+    q('[data-close="checkout"]').click(); await sleep(40);
+
+    // one item so phase B can verify persistence
+    qq("#grid .card")[4].click(); await sleep(80);
+    qq("#pdpSizes .size-pill")[0].click(); await sleep(30);
+    q("#addToCart").click(); await sleep(60);
+    ok(q("#cartCount").textContent === "1", "badge 1 before reload");
+  } catch (e) { fails.push("phaseA exception: " + e.message); }
+}
+async function phaseB(W, D, q, qq){
+  try {
+    await sleep(400);
+    W.addEventListener("error", e => errs.push(e.message));
+    // persistence
+    ok(!q("#cartCount").hidden && q("#cartCount").textContent === "1", "cart persisted, got " + q("#cartCount").textContent);
+
+    // --- Arabic pass ---
+    q("#lang").click(); await sleep(120);
+    ok(D.documentElement.dir === "rtl", "ar dir");
+    ok(D.documentElement.lang === "ar", "ar lang");
+    ok(D.documentElement.scrollWidth <= W.innerWidth + 1, "ar home overflow");
+    ok(q("#brandName").textContent === "محل", "ar brand");
+    ok(q('[data-i="yourCart"]') && qq("#grid .card").length === 12, "ar grid");
+    qq("#grid .card")[0].click(); await sleep(80);
+    ok(!q("#pdp").hidden, "ar pdp");
+    ok(/[\u0600-\u06FF]/.test(q("#pdpName").textContent), "ar product name");
+    q('[data-close="pdp"]').click(); await sleep(40);
+    q("#cartBtn").click(); await sleep(80);
+    ok(/[\u0600-\u06FF]/.test(q("#cartTitle").textContent), "ar cart");
+    q('[data-close="cartDrawer"]').click(); await sleep(40);
+
+    // --- settings: rebrand ---
+    q("#settingsBtn").click(); await sleep(100);
+    q("#sNameEn").value = "Haneen"; q("#sNameAr").value = "حنين";
+    q("#sColorB").value = "#1a7f8f"; q("#sCurrency").value = "USD"; q("#sFee").value = "0";
+    q("#sWa").value = "971501112233";
+    q("#saveSettings").click(); await sleep(120);
+    ok(q("#brandName").textContent === "حنين", "ar brand after save, got " + q("#brandName").textContent);
+    ok(D.documentElement.style.getPropertyValue("--accent") === "#1a7f8f", "accent applied");
+    q('[data-close="settings"]').click(); await sleep(40);
+    q("#cartBtn").click(); await sleep(80);
+    ok(q("#deliveryFee").textContent.trim() === "مجاني", "free delivery in ar, got " + q("#deliveryFee").textContent);
+    ok(q("#subTotal").textContent.includes("$"), "USD format, got " + q("#subTotal").textContent);
+    q('[data-close="cartDrawer"]').click(); await sleep(40);
+
+    // switch back to English (kept settings)
+    q("#lang").click(); await sleep(120);
+    ok(D.documentElement.dir === "ltr" && q("#brandName").textContent === "Haneen", "en rebranded brand");
+
+    // checkout link uses new number
+    q("#cartBtn").click(); await sleep(80);
+    q("#checkoutBtn").click(); await sleep(80);
+    q("#coName").value = "Sara"; q("#coPhone").value = "0501234567";
+    q("#coName").dispatchEvent(new W.Event("input", { bubbles: true })); await sleep(40);
+    ok(q("#waSend").href.startsWith("https://wa.me/971501112233"), "wa number updated, got " + q("#waSend").href.slice(0, 35));
+    ok(decodeURIComponent(q("#waSend").href).includes("$"), "wa text USD");
+    q('[data-close="checkout"]').click(); await sleep(40);
+
+    // --- product edit ---
+    q("#settingsBtn").click(); await sleep(100);
+    q('[data-pe="tee-essential"]').click(); await sleep(80);
+    q("#pePrice").value = "399";
+    q("#peSave").click(); await sleep(80);
+    ok(q("#subTotal") && true, "noop");
+    q('[data-close="settings"]').click(); await sleep(40);
+    const cardTxt = qq("#grid .card")[0].textContent;
+    ok(cardTxt.includes("399"), "edited price shown, got " + cardTxt.slice(0, 80));
+
+    // add a product
+    q("#settingsBtn").click(); await sleep(100);
+    q("#prodAdd").click(); await sleep(80);
+    q("#peNameEn").value = "Silk Scarf"; q("#peNameAr").value = "إيشارب حرير";
+    q("#pePrice").value = "260"; q("#peCat").value = "accessories"; q("#peType").value = "tote";
+    q("#peSizes").value = "OS"; q("#peColors").value = "#a26769";
+    q("#peSave").click(); await sleep(80);
+    q('[data-close="settings"]').click(); await sleep(40);
+    ok(qq("#grid .card").length === 13, "13 products after add, got " + qq("#grid .card").length);
+
+    // --- import brand file (round trip) ---
+    const brand = { app: "mahal", version: 1,
+      settings: { name: { en: "Imported Co", ar: "مستورد" } },
+      products: [{ id: "x1", type: "cap", cat: "accessories", price: 10, sizes: ["OS"], colors: ["#111111"],
+        name: { en: "One Cap", ar: "كاب واحد" }, desc: { en: "", ar: "" } }] };
+    W.importBrand(new W.File([JSON.stringify(brand)], "brand.json", { type: "application/json" }));
+    await sleep(400);
+    ok(q("#brandName").textContent === "Imported Co", "import applied, got " + q("#brandName").textContent);
+    ok(qq("#grid .card").length === 1, "import replaced catalog, got " + qq("#grid .card").length);
+  } catch (e) { fails.push("phaseB exception: " + e.message); }
+}
+function finish(){
+  const t = [];
+  if (errs.length) t.push("JSERR " + errs.join(" | "));
+  if (fails.length) t.push(fails.join(" ;; "));
+  document.title = t.length ? "FAIL " + t.join(" ;; ") : "PASS";
+  const d = document.createElement("pre");
+  d.style.cssText = "position:fixed;top:0;left:0;background:#fff;z-index:9;font:12px monospace;max-width:100vw;white-space:pre-wrap";
+  d.textContent = document.title;
+  document.body.appendChild(d);
+}
+</script>
