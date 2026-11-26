@@ -350,18 +350,21 @@ function exportBrand(){
   a.download = (settings.name.en || "mahal").toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-brand.json";
   a.click(); URL.revokeObjectURL(a.href);
 }
+function applyBrandData(d){
+  if (!d || d.app !== "mahal" || !d.settings || !Array.isArray(d.products)) return false;
+  settings = Object.assign(deep(MAHAL_DEFAULTS.settings), d.settings);
+  products = d.products.filter(p => p && p.id && p.name && p.name.en);
+  save(LS.settings, settings); save(LS.products, products);
+  lang = settings.lang; localStorage.setItem(LS.lang, lang);
+  boot(); fillSettings(); toast(t("imported"));
+  return true;
+}
 function importBrand(file){
   const r = new FileReader();
   r.onload = () => {
-    try {
-      const d = JSON.parse(r.result);
-      if (d.app !== "mahal" || !d.settings || !Array.isArray(d.products)) throw 0;
-      settings = Object.assign(deep(MAHAL_DEFAULTS.settings), d.settings);
-      products = d.products.filter(p => p && p.id && p.name && p.name.en);
-      save(LS.settings, settings); save(LS.products, products);
-      lang = settings.lang; localStorage.setItem(LS.lang, lang);
-      boot(); fillSettings(); toast(t("imported"));
-    } catch { $("#importErr").textContent = t("badFile"); $("#importErr").hidden = false; }
+    let okImport = false;
+    try { okImport = applyBrandData(JSON.parse(r.result)); } catch { okImport = false; }
+    if (!okImport) { $("#importErr").textContent = t("badFile"); $("#importErr").hidden = false; }
   };
   r.readAsText(file);
 }

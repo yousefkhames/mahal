@@ -160,10 +160,11 @@ async function phaseB(W, D, q, qq){
       settings: { name: { en: "Imported Co", ar: "مستورد" } },
       products: [{ id: "x1", type: "cap", cat: "accessories", price: 10, sizes: ["OS"], colors: ["#111111"],
         name: { en: "One Cap", ar: "كاب واحد" }, desc: { en: "", ar: "" } }] };
-    W.importBrand(new W.File([JSON.stringify(brand)], "brand.json", { type: "application/json" }));
-    for (let i = 0; i < 50 && q("#brandName").textContent !== "Imported Co"; i++) await sleep(100);
+    ok(W.applyBrandData(brand) === true, "applyBrandData accepts valid file");
+    await sleep(120);
     ok(q("#brandName").textContent === "Imported Co", "import applied, got " + q("#brandName").textContent);
     ok(qq("#grid .card").length === 1, "import replaced catalog, got " + qq("#grid .card").length);
+    ok(W.applyBrandData({ app: "nope" }) === false, "applyBrandData rejects junk");
   } catch (e) { fails.push("phaseB exception: " + e.message); }
 }
 function finish(){
