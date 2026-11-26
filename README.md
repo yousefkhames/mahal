@@ -12,6 +12,15 @@
 
 </div>
 
+## Screenshots
+
+Captured from the live site (https://yousefkhames.github.io/mahal/).
+
+<p>
+  <img src="docs/screenshots/live-desktop.png" alt="mahal desktop view" width="640">
+  <img src="docs/screenshots/live-mobile.png" alt="mahal mobile view" width="200">
+</p>
+
 ## What it is
 Mahal is a complete clothing store that runs as a static page. A shop owner gets a catalog with sizes and color options, a persistent cart, and a checkout that hands the finished order to the shop's WhatsApp number as a ready-to-send message. There is no server, no database and no account.
 
