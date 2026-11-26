@@ -99,6 +99,11 @@ a{color:var(--accent)}
   .top{padding:.5rem .7rem}
 }
 
+@media(max-width:400px){
+  .cart-btn span[data-i]{display:none}
+  .brand-name{max-width:17vw}
+}
+
 /* Hero */
 .hero{
   padding:clamp(2.2rem,7vw,4.5rem) clamp(.9rem,4vw,2rem) clamp(1.4rem,4vw,2.4rem);

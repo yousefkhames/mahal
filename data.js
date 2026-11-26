@@ -100,7 +100,7 @@ function garmentSVG(type, color){
   const c = color || "#23202b", d = mahalShade(c, -0.14), l = mahalShade(c, 0.12);
   const P = {
     tee: `<path fill="${c}" d="M40 44 16 62l14 24 12-8v84c0 6 4 10 10 10h36c6 0 10-4 10-10V78l12 8 14-24-24-18c-3 7-8 10-15 10s-12-3-15-10Z"/>
-      <path fill="${d}" d="M48 44c2 6 6 8 12 8s10-2 12-8l6 2c-3 8-9 12-18 12s-15-4-18-12l6-2Z"/>`,
+      <path fill="none" stroke="${d}" stroke-width="4" stroke-linecap="round" d="M47 43c3 7 7 9 13 9s10-2 13-9"/>`,
     hoodie: `<path fill="${d}" d="M38 66a22 20 0 0 1 44 0Z"/><path fill="${l}" d="M46 66a14 12 0 0 1 28 0Z"/>
       <path fill="${c}" d="M42 62 18 80l14 22 10-7v69c0 6 4 10 10 10h36c6 0 10-4 10-10V95l10 7 14-22-24-18Z"/>
       <path stroke="${d}" stroke-width="3" d="M54 74v14M66 74v14" stroke-linecap="round"/>
