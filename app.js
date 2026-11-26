@@ -185,6 +185,7 @@ function openProduct(id){
   selColor = cur.colors[0]; selSize = null; qty = 1;
   drawPdp();
   show("pdp");
+  try { history.replaceState(null, "", "#p=" + id); } catch {}
 }
 function drawPdp(){
   $("#pdpArt").style.background = mahalArtBg(selColor);
@@ -381,12 +382,17 @@ function toast(msg){
 function boot(){
   applyI18n(); applyTheme(); applyBrand();
   renderCats(); renderGrid(); renderCartBadge(); renderCart(); drawSizeTable();
+  const m = location.hash.match(/#p=([\w-]+)/);
+  if (m) openProduct(m[1]);
 }
 
 /* ---------- events ---------- */
 document.addEventListener("click", e => {
   const c = e.target.closest("[data-close]");
-  if (c) hide(c.dataset.close);
+  if (c) {
+    hide(c.dataset.close);
+    if (c.dataset.close === "pdp") try { history.replaceState(null, "", location.pathname); } catch {}
+  }
 });
 $("#lang").onclick = () => { lang = lang === "ar" ? "en" : "ar"; localStorage.setItem(LS.lang, lang); boot(); fillSettings(); };
 $("#theme").onclick = () => { theme = theme === "dark" ? "light" : "dark"; localStorage.setItem(LS.theme, theme); applyTheme(); applyBrand(); };

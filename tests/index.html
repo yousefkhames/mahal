@@ -165,6 +165,12 @@ async function phaseB(W, D, q, qq){
     ok(q("#brandName").textContent === "Imported Co", "import applied, got " + q("#brandName").textContent);
     ok(qq("#grid .card").length === 1, "import replaced catalog, got " + qq("#grid .card").length);
     ok(W.applyBrandData({ app: "nope" }) === false, "applyBrandData rejects junk");
+
+    // deep link to a product
+    W.location.hash = "#p=x1"; W.boot(); await sleep(120);
+    ok(!q("#pdp").hidden && q("#pdpName").textContent === "One Cap", "deep link opens product");
+    q('[data-close="pdp"]').click(); await sleep(40);
+    ok(W.location.hash === "", "hash cleared on close");
   } catch (e) { fails.push("phaseB exception: " + e.message); }
 }
 function finish(){
