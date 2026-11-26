@@ -113,7 +113,9 @@ async function phaseB(W, D, q, qq){
     q("#sNameEn").value = "Haneen"; q("#sNameAr").value = "حنين";
     q("#sColorB").value = "#1a7f8f"; q("#sCurrency").value = "USD"; q("#sFee").value = "0";
     q("#sWa").value = "971501112233";
+    q("#sKickerEn").value = "Custom Kicker";
     q("#saveSettings").click(); await sleep(120);
+    ok(q("#heroKicker").textContent === "Custom Kicker", "kicker applied, got " + q("#heroKicker").textContent);
     ok(q("#brandName").textContent === "حنين", "ar brand after save, got " + q("#brandName").textContent);
     ok(D.documentElement.style.getPropertyValue("--accent") === "#1a7f8f", "accent applied");
     q('[data-close="settings"]').click(); await sleep(40);

@@ -18,6 +18,7 @@ const I18N = {
     settings: "Store settings", settingsSub: "This store is white-label: change everything below and export it as your own brand file.",
     secBrand: "Brand", storeNameEn: "Store name (English)", storeNameAr: "Store name (Arabic)",
     taglineEn: "Tagline (English)", taglineAr: "Tagline (Arabic)",
+    kickerEn: "Eyebrow line (English)", kickerAr: "Eyebrow line (Arabic)",
     logoType: "Logo style", logoLetter: "Letter", logoEmoji: "Emoji", logoImage: "Uploaded image",
     logoValue: "Logo letter or emoji", logoUpload: "Logo image",
     secLook: "Look & language", colorPrimary: "Ink color", colorAccent: "Accent color",
@@ -59,6 +60,7 @@ const I18N = {
     settings: "إعدادات المتجر", settingsSub: "المتجر ده أبيض اللافتة: غيّر كل حاجة تحت واعملها تصدير كملف براند خاص بيك.",
     secBrand: "البراند", storeNameEn: "اسم المتجر (إنجليزي)", storeNameAr: "اسم المتجر (عربي)",
     taglineEn: "الجملة التعريفية (إنجليزي)", taglineAr: "الجملة التعريفية (عربي)",
+    kickerEn: "السطر الصغير فوق العنوان (إنجليزي)", kickerAr: "السطر الصغير فوق العنوان (عربي)",
     logoType: "شكل اللوجو", logoLetter: "حرف", logoEmoji: "إيموجي", logoImage: "صورة مرفوعة",
     logoValue: "حرف أو إيموجي اللوجو", logoUpload: "صورة اللوجو",
     secLook: "الشكل واللغة", colorPrimary: "لون الحبر", colorAccent: "اللون المميز",
@@ -296,6 +298,7 @@ function fillSettings(){
   const s = settings;
   $("#sNameEn").value = s.name.en; $("#sNameAr").value = s.name.ar;
   $("#sTagEn").value = s.tagline.en; $("#sTagAr").value = s.tagline.ar;
+  $("#sKickerEn").value = s.kicker.en; $("#sKickerAr").value = s.kicker.ar;
   $("#sLogoType").value = s.logo.type; $("#sLogoText").value = s.logo.value || "";
   $("#sLogoTextWrap").hidden = s.logo.type === "image";
   $("#sLogoImgWrap").hidden = s.logo.type !== "image";
@@ -435,6 +438,7 @@ $("#saveSettings").onclick = () => {
   const s = settings;
   s.name = { en: $("#sNameEn").value.trim() || "Store", ar: $("#sNameAr").value.trim() || "متجر" };
   s.tagline = { en: $("#sTagEn").value, ar: $("#sTagAr").value };
+  s.kicker = { en: $("#sKickerEn").value, ar: $("#sKickerAr").value };
   s.logo.type = $("#sLogoType").value; s.logo.value = $("#sLogoText").value;
   s.colors = { primary: $("#sColorA").value, accent: $("#sColorB").value };
   s.currency = $("#sCurrency").value;
