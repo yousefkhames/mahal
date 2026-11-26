@@ -57,7 +57,7 @@ Run the tests: serve the folder and open `tests/index.html`. The page title show
 ## Honest limits
 - Static site: cart, branding and catalog edits live in the browser's localStorage on each device. There is no shared inventory, no order history on a server, and no payment processing; orders arrive as WhatsApp messages and payment is arranged between buyer and shop (for example cash on delivery).
 - Anyone using the device can open Settings and change the store; there is no admin login. On a shared device, export your brand file first.
-- The demo WhatsApp number (`201000000000`) is a placeholder until the owner sets their own.
+- The demo WhatsApp number (`201000000000`) is a placeholder. Until the owner sets a real number in Settings, checkout refuses to send and tells the customer the shop has not set its number (so no order goes to a dead number).
 - Arabic copy is written in Egyptian-friendly Arabic and has not had a professional review yet.
 
 ## License

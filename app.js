@@ -35,7 +35,7 @@ const I18N = {
     pDescEn: "Description (English)", pDescAr: "Description (Arabic)",
     saveProduct: "Save product", deleteProduct: "Delete product",
     editProduct: "Edit product", newProduct: "New product",
-    needName: "Please add your name.", needPhone: "Please add a phone number.",
+    needWa: "This shop has not set its WhatsApp number yet, so the order cannot be sent. Shop owner: open Settings and add it.", needName: "Please add your name.", needPhone: "Please add a phone number.",
     imported: "Brand file applied.", badFile: "That file is not a valid Mahal brand file.",
     confirmReset: "Reset the store to the demo branding and catalog?",
     confirmDelete: "Delete this product?",
@@ -77,7 +77,7 @@ const I18N = {
     pDescEn: "الوصف (إنجليزي)", pDescAr: "الوصف (عربي)",
     saveProduct: "احفظ المنتج", deleteProduct: "امسح المنتج",
     editProduct: "عدّل المنتج", newProduct: "منتج جديد",
-    needName: "اكتب اسمك من فضلك.", needPhone: "اكتب رقم موبايلك من فضلك.",
+    needWa: "المحل لسه ما ضافش رقم الواتساب بتاعه، فالطلب مش هيتبعت. صاحب المحل: افتح الإعدادات وضيف الرقم.", needName: "اكتب اسمك من فضلك.", needPhone: "اكتب رقم موبايلك من فضلك.",
     imported: "ملف البراند اتطبّق.", badFile: "الملف ده مش ملف براند صالح لمحل.",
     confirmReset: "ترجع المتجر لبراند ومنتجات الديمو؟",
     confirmDelete: "تمسح المنتج ده؟",
@@ -285,6 +285,8 @@ function syncWa(){
   $("#waSend").dataset.no = no;
 }
 function sendOrder(){
+  const wa = (settings.whatsapp || "").replace(/\D/g, "");
+  if (!wa || wa === "201000000000") { $("#coErr").textContent = t("needWa"); $("#coErr").hidden = false; return false; }
   if (!$("#coName").value.trim()) { $("#coErr").textContent = t("needName"); $("#coErr").hidden = false; return false; }
   if (!$("#coPhone").value.trim()) { $("#coErr").textContent = t("needPhone"); $("#coErr").hidden = false; return false; }
   $("#orderNo").textContent = $("#waSend").dataset.no;

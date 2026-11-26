@@ -75,6 +75,15 @@ async function phaseA(W, D, q, qq){
     ok(decodeURIComponent(href).includes("Test Buyer"), "wa text has name");
     ok(decodeURIComponent(href).includes("Hoodie") || decodeURIComponent(href).includes("Tee"), "wa text has item");
     q("#waSend").click(); await sleep(80);
+    ok(q("#coDone").hidden && !q("#coErr").hidden, "placeholder whatsapp number blocks sending");
+    q('[data-close="checkout"]').click(); await sleep(40);
+    q("#settingsBtn").click(); await sleep(80);
+    q("#sWa").value = "201000000555"; q("#saveSettings").click(); await sleep(120);
+    q("#cartBtn").click(); await sleep(80);
+    q("#checkoutBtn").click(); await sleep(80);
+    q("#coName").value = "Test Buyer"; q("#coPhone").value = "01001234567";
+    q("#coName").dispatchEvent(new W.Event("input", { bubbles: true })); await sleep(40);
+    q("#waSend").click(); await sleep(80);
     ok(!q("#coDone").hidden, "done screen");
     ok(q("#cartCount").hidden, "cart cleared after order");
     q('[data-close="checkout"]').click(); await sleep(40);
