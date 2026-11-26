@@ -24,12 +24,12 @@ async function phaseA(W, D, q, qq){
     ok(q("#heroTitle").textContent.length > 5, "hero title");
     ok(q("#brandName").textContent === "Mahal", "default brand");
 
-    // category filter
-    const chips = qq("#cats .chip");
-    ok(chips.length === 8, "8 category chips, got " + chips.length);
-    chips[1].click(); await sleep(60);
+    // category filter (chips re-render on each click, so re-query every time)
+    ok(qq("#cats .chip").length === 8, "8 category chips, got " + qq("#cats .chip").length);
+    qq("#cats .chip")[1].click(); await sleep(60);
     ok(qq("#grid .card").length === 2, "tees filter = 2, got " + qq("#grid .card").length);
-    chips[0].click(); await sleep(60);
+    qq("#cats .chip")[0].click(); await sleep(60);
+    ok(qq("#grid .card").length === 12, "all filter = 12, got " + qq("#grid .card").length);
 
     // search
     q("#search").value = "hoodie"; q("#search").dispatchEvent(new W.Event("input", { bubbles: true })); await sleep(60);
@@ -161,7 +161,7 @@ async function phaseB(W, D, q, qq){
       products: [{ id: "x1", type: "cap", cat: "accessories", price: 10, sizes: ["OS"], colors: ["#111111"],
         name: { en: "One Cap", ar: "كاب واحد" }, desc: { en: "", ar: "" } }] };
     W.importBrand(new W.File([JSON.stringify(brand)], "brand.json", { type: "application/json" }));
-    await sleep(400);
+    for (let i = 0; i < 50 && q("#brandName").textContent !== "Imported Co"; i++) await sleep(100);
     ok(q("#brandName").textContent === "Imported Co", "import applied, got " + q("#brandName").textContent);
     ok(qq("#grid .card").length === 1, "import replaced catalog, got " + qq("#grid .card").length);
   } catch (e) { fails.push("phaseB exception: " + e.message); }
