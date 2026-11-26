@@ -92,6 +92,13 @@ a{color:var(--accent)}
   display:grid;place-items:center;padding:0 .25rem;
 }
 
+@media(max-width:560px){
+  .brand-name{font-size:1.1rem;max-width:24vw}
+  .btn{padding:.4rem .7rem;font-size:.9rem}
+  .btn.icon{width:2.2rem}
+  .top{padding:.5rem .7rem}
+}
+
 /* Hero */
 .hero{
   padding:clamp(2.2rem,7vw,4.5rem) clamp(.9rem,4vw,2rem) clamp(1.4rem,4vw,2.4rem);

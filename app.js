@@ -126,7 +126,8 @@ function applyI18n(){
 function applyTheme(){ document.documentElement.dataset.theme = theme; }
 function applyBrand(){
   const s = settings;
-  document.documentElement.style.setProperty("--ink", s.colors.primary);
+  // brand ink drives text/active fills; in dark theme it must stay light to remain readable
+  document.documentElement.style.setProperty("--ink", theme === "dark" ? mahalShade(s.colors.primary, 0.85) : s.colors.primary);
   document.documentElement.style.setProperty("--accent", s.colors.accent);
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.content = s.colors.accent;
@@ -164,7 +165,7 @@ function renderGrid(){
   const list = visibleProducts();
   $("#grid").innerHTML = list.map(p => `
     <button class="card" data-id="${p.id}">
-      <span class="card-art" style="background:${mahalShade(p.colors[0], 0.42)}">
+      <span class="card-art" style="background:${mahalArtBg(p.colors[0])}">
         <span class="card-cat">${L(MAHAL_DEFAULTS.categories.find(c => c.id === p.cat) || { en: p.cat, ar: p.cat })}</span>
         ${garmentSVG(p.type, p.colors[0])}
       </span>
@@ -186,7 +187,7 @@ function openProduct(id){
   show("pdp");
 }
 function drawPdp(){
-  $("#pdpArt").style.background = mahalShade(selColor, 0.42);
+  $("#pdpArt").style.background = mahalArtBg(selColor);
   $("#pdpArt").innerHTML = garmentSVG(cur.type, selColor);
   $("#pdpCat").textContent = L(MAHAL_DEFAULTS.categories.find(c => c.id === cur.cat) || { en: cur.cat, ar: cur.cat });
   $("#pdpName").textContent = L(cur.name);
@@ -229,7 +230,7 @@ function renderCart(){
   $("#cartFoot").hidden = cart.length === 0;
   $("#cartItems").innerHTML = cart.map((i, ix) => `
     <div class="cart-row">
-      <span class="cart-thumb" style="background:${mahalShade(i.color, 0.42)}">${garmentSVG(i.type, i.color)}</span>
+      <span class="cart-thumb" style="background:${mahalArtBg(i.color)}">${garmentSVG(i.type, i.color)}</span>
       <span class="cart-info">
         <span class="n">${L(i.name)}</span>
         <span class="v">${i.size} · <span style="display:inline-block;width:.8em;height:.8em;border-radius:50%;background:${i.color};vertical-align:-1px"></span></span>
@@ -306,7 +307,7 @@ function fillSettings(){
 function renderProdList(){
   $("#prodList").innerHTML = products.map(p => `
     <div class="prod-row" data-pe="${p.id}" role="button" tabindex="0">
-      <span class="thumb" style="background:${mahalShade(p.colors[0], 0.42)}">${garmentSVG(p.type, p.colors[0])}</span>
+      <span class="thumb" style="background:${mahalArtBg(p.colors[0])}">${garmentSVG(p.type, p.colors[0])}</span>
       <span class="pn">${L(p.name)}</span><span class="pp">${money(p.price)}</span>
     </div>`).join("");
 }
@@ -385,7 +386,7 @@ document.addEventListener("click", e => {
   if (c) hide(c.dataset.close);
 });
 $("#lang").onclick = () => { lang = lang === "ar" ? "en" : "ar"; localStorage.setItem(LS.lang, lang); boot(); fillSettings(); };
-$("#theme").onclick = () => { theme = theme === "dark" ? "light" : "dark"; localStorage.setItem(LS.theme, theme); applyTheme(); };
+$("#theme").onclick = () => { theme = theme === "dark" ? "light" : "dark"; localStorage.setItem(LS.theme, theme); applyTheme(); applyBrand(); };
 $("#brandHome").onclick = e => { e.preventDefault(); $("#home").scrollIntoView(); };
 $("#heroShop").onclick = () => $("#grid").scrollIntoView({ behavior: "smooth" });
 $("#heroBrand").onclick = () => { fillSettings(); show("settings"); };

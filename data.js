@@ -90,16 +90,23 @@ function mahalShade(hex, amt){
   return "#" + [f(n>>16), f(n>>8 & 255), f(n & 255)].map(v => v.toString(16).padStart(2,"0")).join("");
 }
 
+function mahalArtBg(color){
+  const n = parseInt(color.slice(1), 16);
+  const lum = (0.299 * (n >> 16) + 0.587 * (n >> 8 & 255) + 0.114 * (n & 255)) / 255;
+  return mahalShade(color, lum > 0.75 ? -0.22 : 0.42);
+}
+
 function garmentSVG(type, color){
   const c = color || "#23202b", d = mahalShade(c, -0.14), l = mahalShade(c, 0.12);
   const P = {
-    tee: `<path fill="${c}" d="M60 34 38 42 20 78l20 10 8-14v92c0 6 4 10 10 10h44c6 0 10-4 10-10V74l8 14 20-10-18-36-22-8c-2 8-10 12-20 12s-18-4-20-12Z"/>
-      <path fill="${d}" d="M60 34c-2 8-10 12-20 12s-18-4-20-12l6-2c2 6 8 9 14 9s12-3 14-9l6 2Z"/>`,
-    hoodie: `<path fill="${c}" d="M60 30c-16 0-26 10-27 26L22 64 10 98l22 8 8-16v76c0 6 4 10 10 10h60c6 0 10-4 10-10V90l8 16 22-8-12-34-11-8c-1-16-11-26-27-26Z"/>
-      <path fill="${d}" d="M60 30c-13 0-22 8-22 20 0 10 8 16 22 16s22-6 22-16c0-12-9-20-22-20Zm0 8c9 0 14 5 14 12s-5 10-14 10-14-3-14-10 5-12 14-12Z"/>
-      <path fill="${l}" d="M52 96h16v34H52z" opacity=".55"/><path stroke="${d}" stroke-width="3" d="M48 66v14M72 66v14" stroke-linecap="round"/>`,
-    shirt: `<path fill="${c}" d="M56 30 34 40 18 74l20 10 8-13v93c0 6 4 10 10 10h48c6 0 10-4 10-10V71l8 13 20-10-16-34-22-10-8 10-8-14-8 14-8-10Z"/>
-      <path fill="${d}" d="M56 30l-8 10 8 14 8-14-8-10Zm0 34a4 4 0 1 1 0 8 4 4 0 0 1 0-8Zm0 22a4 4 0 1 1 0 8 4 4 0 0 1 0-8Zm0 22a4 4 0 1 1 0 8 4 4 0 0 1 0-8Zm0 22a4 4 0 1 1 0 8 4 4 0 0 1 0-8Zm0 22a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z"/>`,
+    tee: `<path fill="${c}" d="M40 44 16 62l14 24 12-8v84c0 6 4 10 10 10h36c6 0 10-4 10-10V78l12 8 14-24-24-18c-3 7-8 10-15 10s-12-3-15-10Z"/>
+      <path fill="${d}" d="M48 44c2 6 6 8 12 8s10-2 12-8l6 2c-3 8-9 12-18 12s-15-4-18-12l6-2Z"/>`,
+    hoodie: `<path fill="${d}" d="M38 66a22 20 0 0 1 44 0Z"/><path fill="${l}" d="M46 66a14 12 0 0 1 28 0Z"/>
+      <path fill="${c}" d="M42 62 18 80l14 22 10-7v69c0 6 4 10 10 10h36c6 0 10-4 10-10V95l10 7 14-22-24-18Z"/>
+      <path stroke="${d}" stroke-width="3" d="M54 74v14M66 74v14" stroke-linecap="round"/>
+      <path fill="${d}" d="M48 118h24v26H48z" opacity=".45"/>`,
+    shirt: `<path fill="${c}" d="M44 42 18 58l14 22 10-7v89c0 6 4 10 10 10h36c6 0 10-4 10-10V73l10 7 14-22-26-16-8 8-8-12-8 12-8-8Z"/>
+      <path fill="${d}" d="M64 42l-8 8 8 12 8-12-8-8Zm-8 24a3.6 3.6 0 1 1 0 7.2A3.6 3.6 0 0 1 56 66Zm0 20a3.6 3.6 0 1 1 0 7.2A3.6 3.6 0 0 1 56 86Zm0 20a3.6 3.6 0 1 1 0 7.2A3.6 3.6 0 0 1 56 106Zm0 20a3.6 3.6 0 1 1 0 7.2A3.6 3.6 0 0 1 56 126Zm0 20a3.6 3.6 0 1 1 0 7.2A3.6 3.6 0 0 1 56 146Z"/>`,
     pants: `<path fill="${c}" d="M42 26h56c4 0 8 3 8 8l8 128c1 7-3 12-10 12H84c-6 0-10-4-11-9L70 96l-3 69c-1 5-5 9-11 9H36c-7 0-11-5-10-12L34 34c0-5 4-8 8-8Z"/>
       <path fill="${d}" d="M42 26h56c4 0 8 3 8 8v6H34v-6c0-5 4-8 8-8Z"/><path stroke="${d}" stroke-width="3" d="M70 44v36" stroke-linecap="round"/>`,
     jacket: `<path fill="${c}" d="M58 30 34 38 16 76l22 10 8-14v92c0 6 4 10 10 10h48c6 0 10-4 10-10V72l8 14 22-10-18-38-24-8-9 12-9-16-9 16-9-12Z"/>
