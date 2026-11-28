@@ -1,3 +1,21 @@
+<div align="center">
+
+<img src="assets/yk-logo.svg" width="64" alt="YK">
+
+# mahal
+
+**mahal** · demo / portfolio project
+
+**واجهة متجر ملابس** · مشروع تجريبي للعرض
+
+[Live demo](https://yousefkhames.github.io/mahal/) · By Yousef Khames · من تطوير يوسف خميس
+
+<img src="assets/og.png" width="640" alt="mahal preview">
+
+</div>
+
+---
+
 # mahal · محل
 
 A free white-label clothing storefront driven by one catalog file: product grid, product pages with sizes and colours, a bag and WhatsApp order drafts. Three layout presets (grid, list, large) are set in `config.js`. Arabic RTL and English LTR. Static HTML, CSS and JavaScript; no build, account, API or payment processor.
