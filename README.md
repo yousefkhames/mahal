@@ -1,84 +1,50 @@
-<div align="center">
+# mahal · محل
 
-<img src="logo.svg" width="84" alt="Mahal logo">
+A free white-label clothing storefront driven by one catalog file: product grid, product pages with sizes and colours, a bag and WhatsApp order drafts. Three layout presets (grid, list, large) are set in `config.js`. Arabic RTL and English LTR. Static HTML, CSS and JavaScript; no build, account, API or payment processor.
 
-# Mahal · محل
+<div lang="ar" dir="rtl">متجر ملابس مجاني: عدّل ملف الكتالوج، انشره، وابدأ استقبال الطلبات عبر واتساب. لا يوجد دفع داخل الأداة.</div>
 
-**A free white-label storefront for clothing brands. Catalog, sizes, cart, and checkout over WhatsApp, all rebrandable from one settings screen.**
+<img src="assets/yk-logo.svg" width="24" height="24" alt=""> **By Yousef Khames · من تطوير يوسف خميس**
 
-[**Live demo**](https://yousefkhames.github.io/mahal/) · English and Arabic · Works offline · No sign-up
+## Preview locally
 
-<img src="docs/img/home-desktop.png" alt="Mahal storefront on desktop" width="760">
-
-</div>
-
-## Screenshots
-
-Captured from the live site (https://yousefkhames.github.io/mahal/).
-
-<p>
-  <img src="docs/screenshots/live-desktop.png" alt="mahal desktop view" width="640">
-  <img src="docs/screenshots/live-mobile.png" alt="mahal mobile view" width="200">
-</p>
-
-## What it is
-Mahal is a complete clothing store that runs as a static page. A shop owner gets a catalog with sizes and color options, a persistent cart, and a checkout that hands the finished order to the shop's WhatsApp number as a ready-to-send message. There is no server, no database and no account.
-
-It is built to be resold: open the settings screen, type the client's store name, pick their colors, upload their logo, set their currency and WhatsApp number, edit the catalog, then export one JSON brand file. Import that file on any other device and the same codebase is now their store.
-
-## Features
-- 12-product demo catalog with 10 hand-drawn garment shapes, recolored per product
-- Product page with color swatches, size picker, quantity and a size guide
-- Persistent cart (localStorage) with quantity editing, subtotal, delivery fee and total
-- WhatsApp checkout: name, phone, address and notes become a prefilled order message to the shop's number, with a copy-to-clipboard fallback
-- White-label settings: store name and tagline in English and Arabic, letter / emoji / uploaded-image logo, ink and accent colors, currency (EGP, USD, EUR, GBP, SAR, AED, KWD), default language, WhatsApp number, delivery fee, footer note
-- Catalog manager: add, edit and delete products (name, price, category, artwork shape, sizes, colors, description) without touching code
-- Export / import the whole brand (settings + catalog) as one JSON file
-- Full English and Arabic (RTL) interface, switchable any time
-- Mobile first, light and dark theme, works offline (PWA)
-- Automated click-through test suite in `tests/`
-
-| Storefront (mobile) | Arabic (RTL) | Settings |
-|---|---|---|
-| <img src="docs/img/home-mobile.png" width="200" alt="Storefront on mobile"> | <img src="docs/img/home-mobile-ar.png" width="200" alt="Arabic storefront on mobile"> | <img src="docs/img/settings-desktop.png" width="300" alt="Settings screen"> |
-
-| Product page | Cart and checkout |
-|---|---|
-| <img src="docs/img/product-desktop.png" width="300" alt="Product page"> | <img src="docs/img/checkout-desktop.png" width="300" alt="Cart and checkout"> |
-
-## Tech stack
-Plain HTML, CSS and JavaScript. No framework, no build step, no dependencies, no tracking. Garment artwork is inline SVG recolored at runtime. Hosted on GitHub Pages.
-
-## Run it
-```bash
-git clone https://github.com/yousefkhames/mahal.git
-cd mahal
-python3 -m http.server   # open http://localhost:8000
+```sh
+python3 -m http.server 8080 --bind 127.0.0.1
 ```
-Run the tests: serve the folder and open `tests/index.html`. The page title shows PASS or FAIL.
 
-## Sell it to a shop
-1. Open the live demo, press ⚙ Settings.
-2. Fill in the shop's branding, WhatsApp number, currency and catalog.
-3. Press **Export brand file** and keep the JSON.
-4. Host this repo anywhere static. On the shop's device, open Settings → **Import brand file** and pick the JSON. Done.
+Open `http://localhost:8080/`. Use a fresh browser profile. The sample shop is **demo content**: fictional products and prices, a Demo banner, a Demo tag on every product and labelled placeholder images. No WhatsApp number is set, so the order screen offers **Copy order** only. Screenshots in `docs/` use this demo data.
 
-## Honest limits
-- Static site: cart, branding and catalog edits live in the browser's localStorage on each device. There is no shared inventory, no order history on a server, and no payment processing; orders arrive as WhatsApp messages and payment is arranged between buyer and shop (for example cash on delivery).
-- Anyone using the device can open Settings and change the store; there is no admin login. On a shared device, export your brand file first.
-- The demo WhatsApp number (`201000000000`) is a placeholder. Until the owner sets a real number in Settings, checkout refuses to send and tells the customer the shop has not set its number (so no order goes to a dead number).
-- Arabic copy is written in Egyptian-friendly Arabic and has not had a professional review yet.
+## Set up a shop
+
+1. Edit `config.js` to choose a layout: `grid`, `list` or `big`.
+2. Open **Owner** (`#/edit`), set the shop name, currency and public WhatsApp number, press **Clear demo products** and add yours (sizes and colours as comma lists, out-of-stock combinations as checkboxes).
+3. Press **Export catalog-data.js**, replace the file in the repository, commit and publish. That one file is the whole shop; the owner page only edits a local draft.
+4. Want categories, filters, saved items and a size guide? Use the **lebs** kit, which is the fuller clothing catalog.
+
+Static theming: edit `assets/kit-theme.js` (`name`, `logo`, `accent`, `mode`, `light`, `dark`). Keep `assets/yk-logo.svg` and `assets/favicon.svg` for the developer credit. The shared storefront engine (`shop-core.js`, `shop-ui.js`) is the same across the talab, mahal and lebs kits.
+
+## Deploy (GitHub Pages)
+
+Create the repository `yousefkhames/mahal`, commit these files to `main`, then Settings → Pages → Deploy from a branch → `main` / root. Live at `https://yousefkhames.github.io/mahal/`. All paths are relative.
+
+## Tests
+
+```sh
+npm run test:unit  # Node 22+, no install
+npm run test:e2e   # headless Chrome as google-chrome
+npm test
+```
+
+## Honest limits and privacy
+
+- Opening a WhatsApp draft is not sending. The customer presses send, and the order is not confirmed until the shop replies. The app records no orders.
+- Totals use the shop prices in the catalog. There is no shipping, tax, discount code or payment; the shop confirms the final price.
+- Stock is a manual flag you edit in the catalog; it does not update by itself.
+- Photos are resized in the browser and embedded in the exported file; relative paths such as `img/shirt.jpg` also work.
+- Static and device-local: the owner draft does not sync between devices. Clearing site data erases it, so export first.
+- No customer data is collected or stored; the optional name and note go only into the WhatsApp message the customer sends.
+- Contrast of the default theme pairs is checked; no blanket WCAG claim.
 
 ## License
-MIT
 
-## Fonts and limits (round 2)
-
-- Cairo (SIL OFL) is bundled in `fonts/` (woff2) and precached by the service worker, so Arabic renders the same offline.
-
-## Round 2 review notes
-- Stored and imported data is sanitised before it is rendered (names, colours, logo, numbers); a brand import now asks for confirmation.
-- Local numbers like 010... are converted to wa.me/2010...; Arabic digits work in the WhatsApp and fee fields.
-- Copy order falls back to a hidden textarea and says so honestly if copying fails.
-- Test: `python3 -m http.server 8750` then `node tests/e2e.cjs` (needs puppeteer-core).
-- Limit: WhatsApp links are only verified as generated URLs.
+MIT, copyright Yousef Khames. See `LICENSE`. Cairo font: SIL OFL. `assets/qrcode.js`: qrcode-generator by Kazuhiko Arase (MIT, `assets/qrcode.LICENSE.txt`).

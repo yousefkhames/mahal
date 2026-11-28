@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#23202b"/>
-  <!-- hanger forming an M -->
-  <circle cx="32" cy="17" r="3.4" fill="none" stroke="#f6f1ea" stroke-width="2.6"/>
-  <path d="M32 20.5V27" stroke="#f6f1ea" stroke-width="2.6" stroke-linecap="round"/>
-  <path d="M13 47 32 27l19 20" fill="none" stroke="#f6f1ea" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M17 47v5.5c0 1.9 1.6 3.5 3.5 3.5h23c1.9 0 3.5-1.6 3.5-3.5V47" fill="none" stroke="#c2562f" stroke-width="3.2" stroke-linecap="round"/>
-</svg>

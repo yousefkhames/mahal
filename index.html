@@ -1,271 +1,31 @@
 <!doctype html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Mahal · White-label clothing store</title>
-<meta name="description" content="Mahal is a free white-label storefront for clothing brands: catalog, sizes, cart and checkout over WhatsApp. Rebrand everything from the settings screen.">
-<meta property="og:title" content="Mahal · White-label clothing store">
-<meta property="og:description" content="A storefront any clothing brand can make its own. Catalog, sizes, cart, WhatsApp checkout, full branding control.">
-<link rel="icon" href="favicon.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>mahal | محل</title>
+<meta name="description" content="mahal: free white-label clothing storefront. Edit one catalog file and publish. Grid, list or large layout, WhatsApp order drafts. Static, no server.">
+<meta name="theme-color" content="#F8FAFC">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icon-192.png">
-<meta name="theme-color" content="#c2562f">
-<meta property="og:type" content="website">
-<meta property="og:image" content="https://yousefkhames.github.io/mahal/og.png">
-<meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="fonts/fonts.css">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="shop.css">
 </head>
 <body>
-<a class="skip" href="#main" data-i="skip"></a>
-
-<header class="top">
-  <a class="brand" href="#" id="brandHome">
-    <span id="brandLogo" class="brand-logo"></span>
-    <span id="brandName" class="brand-name">Mahal</span>
-  </a>
-  <div class="top-actions">
-    <button id="theme" class="btn ghost icon" aria-label="Theme" title="Theme">◐</button>
-    <button id="lang" class="btn ghost" aria-label="Language">عربي</button>
-    <button id="settingsBtn" class="btn ghost icon" aria-label="Settings" title="Settings">⚙</button>
-    <button id="cartBtn" class="btn cart-btn" aria-label="Cart">
-      <span class="cart-ic" aria-hidden="true">🛍</span><span data-i="cart"></span>
-      <span id="cartCount" class="badge" hidden>0</span>
-    </button>
-  </div>
-</header>
-
-<main id="main" tabindex="-1">
-  <section id="home">
-    <div class="hero">
-      <p class="hero-kicker" id="heroKicker"></p>
-      <h1 id="heroTitle"></h1>
-      <p class="hero-sub" id="heroSub"></p>
-      <div class="hero-cta">
-        <button id="heroShop" class="btn solid" data-i="shopNow"></button>
-        <button id="heroBrand" class="btn ghost" data-i="makeYours"></button>
-      </div>
-    </div>
-
-    <div class="toolbar">
-      <div class="search">
-        <span aria-hidden="true">⌕</span>
-        <input id="search" type="search" data-i-ph="searchPh" aria-label="Search">
-      </div>
-      <div id="cats" class="chips" role="group" aria-label="Categories"></div>
-    </div>
-
-    <div id="grid" class="grid" aria-live="polite"></div>
-    <p id="empty" class="empty" hidden data-i="noResults"></p>
-  </section>
-</main>
-
-<footer class="foot">
-  <div id="footNote" class="foot-note"></div>
-  <div class="foot-meta"><span id="footBrand"></span> · <span data-i="footTag"></span></div>
-</footer>
-
-<!-- Product modal -->
-<div id="pdp" class="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="pdpName">
-  <div class="sheet-back" data-close="pdp"></div>
-  <div class="sheet-card">
-    <button class="x" data-close="pdp" aria-label="Close">✕</button>
-    <div class="pdp-art" id="pdpArt"></div>
-    <div class="pdp-body">
-      <div class="muted" id="pdpCat"></div>
-      <h2 id="pdpName"></h2>
-      <p class="pdp-desc" id="pdpDesc"></p>
-      <div class="pdp-price" id="pdpPrice"></div>
-      <div class="opt-label" data-i="color"></div>
-      <div id="pdpColors" class="swatches"></div>
-      <div class="opt-label"><span data-i="size"></span> <button id="sizeGuide" class="lnk" data-i="sizeGuide"></button></div>
-      <div id="pdpSizes" class="sizes"></div>
-      <div class="qty-row">
-        <div class="qty">
-          <button id="qtyMinus" aria-label="Less">−</button>
-          <span id="qtyVal">1</span>
-          <button id="qtyPlus" aria-label="More">+</button>
-        </div>
-        <button id="addToCart" class="btn solid grow"></button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Size guide modal -->
-<div id="guide" class="sheet" hidden role="dialog" aria-modal="true">
-  <div class="sheet-back" data-close="guide"></div>
-  <div class="sheet-card slim">
-    <button class="x" data-close="guide" aria-label="Close">✕</button>
-    <h2 data-i="sizeGuide"></h2>
-    <table class="size-table" id="sizeTable"></table>
-    <p class="muted" data-i="sizeNote"></p>
-  </div>
-</div>
-
-<!-- Cart drawer -->
-<div id="cartDrawer" class="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="cartTitle">
-  <div class="sheet-back" data-close="cartDrawer"></div>
-  <div class="sheet-card drawer">
-    <button class="x" data-close="cartDrawer" aria-label="Close">✕</button>
-    <h2 id="cartTitle" data-i="yourCart"></h2>
-    <div id="cartItems" class="cart-items"></div>
-    <p id="cartEmpty" class="empty" data-i="cartEmpty"></p>
-    <div id="cartFoot" class="cart-foot" hidden>
-      <div class="totals">
-        <div><span data-i="subtotal"></span><span id="subTotal"></span></div>
-        <div><span data-i="delivery"></span><span id="deliveryFee"></span></div>
-        <div class="grand"><span data-i="total"></span><span id="grandTotal"></span></div>
-      </div>
-      <button id="checkoutBtn" class="btn solid big" data-i="checkout"></button>
-      <button id="clearCart" class="lnk danger" data-i="clearCart"></button>
-    </div>
-  </div>
-</div>
-
-<!-- Checkout modal -->
-<div id="checkout" class="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="coTitle">
-  <div class="sheet-back" data-close="checkout"></div>
-  <div class="sheet-card slim">
-    <button class="x" data-close="checkout" aria-label="Close">✕</button>
-    <div id="coForm">
-      <h2 id="coTitle" data-i="yourOrder"></h2>
-      <div id="coSummary" class="co-summary"></div>
-      <label><span data-i="name"></span><input id="coName" type="text" autocomplete="name"></label>
-      <label><span data-i="phone"></span><input id="coPhone" type="tel" inputmode="tel" autocomplete="tel"></label>
-      <label><span data-i="address"></span><textarea id="coAddress" rows="2"></textarea></label>
-      <label><span data-i="notes"></span><input id="coNotes" type="text" data-i-ph="notesPh"></label>
-      <p id="coErr" class="err" hidden></p>
-      <a id="waSend" class="btn wa big" target="_blank" rel="noopener"><span aria-hidden="true">✆</span> <span data-i="sendWa"></span></a>
-      <button id="copyOrder" class="btn ghost big" data-i="copyOrder"></button>
-      <p class="muted small" data-i="waHint"></p>
-    </div>
-    <div id="coDone" hidden>
-      <div class="done-mark">✓</div>
-      <h2 data-i="orderReady"></h2>
-      <p data-i="orderReadySub"></p>
-      <p class="order-no"><span data-i="orderNo"></span> <b id="orderNo"></b></p>
-      <button class="btn solid big" data-close="checkout" data-i="backToShop"></button>
-    </div>
-  </div>
-</div>
-
-<!-- Settings -->
-<div id="settings" class="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="setTitle">
-  <div class="sheet-back" data-close="settings"></div>
-  <div class="sheet-card drawer wide">
-    <button class="x" data-close="settings" aria-label="Close">✕</button>
-    <h2 id="setTitle" data-i="settings"></h2>
-    <p class="muted" data-i="settingsSub"></p>
-
-    <details open class="set-sec">
-      <summary data-i="secBrand"></summary>
-      <div class="set-grid">
-        <label><span data-i="storeNameEn"></span><input id="sNameEn" type="text"></label>
-        <label><span data-i="storeNameAr"></span><input id="sNameAr" type="text" dir="rtl"></label>
-        <label><span data-i="taglineEn"></span><input id="sTagEn" type="text"></label>
-        <label><span data-i="taglineAr"></span><input id="sTagAr" type="text" dir="rtl"></label>
-        <label><span data-i="kickerEn"></span><input id="sKickerEn" type="text"></label>
-        <label><span data-i="kickerAr"></span><input id="sKickerAr" type="text" dir="rtl"></label>
-        <label><span data-i="logoType"></span>
-          <select id="sLogoType">
-            <option value="letter" data-i="logoLetter"></option>
-            <option value="emoji" data-i="logoEmoji"></option>
-            <option value="image" data-i="logoImage"></option>
-          </select>
-        </label>
-        <label id="sLogoTextWrap"><span data-i="logoValue"></span><input id="sLogoText" type="text" maxlength="4"></label>
-        <label id="sLogoImgWrap" hidden><span data-i="logoUpload"></span><input id="sLogoImg" type="file" accept="image/*"></label>
-      </div>
-    </details>
-
-    <details class="set-sec">
-      <summary data-i="secLook"></summary>
-      <div class="set-grid">
-        <label><span data-i="colorPrimary"></span><input id="sColorA" type="color"></label>
-        <label><span data-i="colorAccent"></span><input id="sColorB" type="color"></label>
-        <label><span data-i="currency"></span>
-          <select id="sCurrency">
-            <option value="EGP">EGP · جنيه</option>
-            <option value="USD">USD · $</option>
-            <option value="EUR">EUR · €</option>
-            <option value="GBP">GBP · £</option>
-            <option value="SAR">SAR · ريال</option>
-            <option value="AED">AED · درهم</option>
-            <option value="KWD">KWD · دينار</option>
-          </select>
-        </label>
-        <label><span data-i="defaultLang"></span>
-          <select id="sLang">
-            <option value="en">English</option>
-            <option value="ar">العربية</option>
-          </select>
-        </label>
-      </div>
-    </details>
-
-    <details class="set-sec">
-      <summary data-i="secCheckout"></summary>
-      <div class="set-grid">
-        <label><span data-i="waNumber"></span><input id="sWa" type="tel" inputmode="tel" placeholder="2010XXXXXXXX"></label>
-        <label><span data-i="deliveryFeeLabel"></span><input id="sFee" type="number" min="0" step="1"></label>
-        <label><span data-i="footNoteEn"></span><input id="sNoteEn" type="text"></label>
-        <label><span data-i="footNoteAr"></span><input id="sNoteAr" type="text" dir="rtl"></label>
-      </div>
-    </details>
-
-    <details class="set-sec">
-      <summary data-i="secProducts"></summary>
-      <p class="muted small" data-i="productsHint"></p>
-      <div id="prodList" class="prod-list"></div>
-      <button id="prodAdd" class="btn ghost" data-i="addProduct"></button>
-    </details>
-
-    <details class="set-sec">
-      <summary data-i="secData"></summary>
-      <p class="muted small" data-i="dataHint"></p>
-      <div class="row-gap">
-        <button id="exportBtn" class="btn ghost" data-i="exportBrand"></button>
-        <label class="btn ghost file-btn"><span data-i="importBrand"></span><input id="importInput" type="file" accept="application/json,.json" hidden></label>
-        <button id="resetBtn" class="lnk danger" data-i="resetAll"></button>
-      </div>
-      <p id="importErr" class="err" hidden></p>
-    </details>
-
-    <div class="set-save">
-      <button id="saveSettings" class="btn solid big" data-i="save"></button>
-    </div>
-  </div>
-</div>
-
-<!-- Product edit modal -->
-<div id="prodEdit" class="sheet" hidden role="dialog" aria-modal="true">
-  <div class="sheet-back" data-close="prodEdit"></div>
-  <div class="sheet-card slim">
-    <button class="x" data-close="prodEdit" aria-label="Close">✕</button>
-    <h2 id="peTitle"></h2>
-    <div class="set-grid">
-      <label><span data-i="pNameEn"></span><input id="peNameEn" type="text"></label>
-      <label><span data-i="pNameAr"></span><input id="peNameAr" type="text" dir="rtl"></label>
-      <label><span data-i="pPrice"></span><input id="pePrice" type="number" min="0" step="1"></label>
-      <label><span data-i="pCat"></span><select id="peCat"></select></label>
-      <label><span data-i="pType"></span><select id="peType"></select></label>
-      <label><span data-i="pSizes"></span><input id="peSizes" type="text" placeholder="S,M,L,XL"></label>
-    </div>
-    <label><span data-i="pColors"></span><input id="peColors" type="text" placeholder="#c2562f,#2b2622,#7a8b99"></label>
-    <label><span data-i="pDescEn"></span><textarea id="peDescEn" rows="2"></textarea></label>
-    <label><span data-i="pDescAr"></span><textarea id="peDescAr" rows="2" dir="rtl"></textarea></label>
-    <div class="row-gap">
-      <button id="peSave" class="btn solid" data-i="saveProduct"></button>
-      <button id="peDelete" class="lnk danger" data-i="deleteProduct"></button>
-    </div>
-  </div>
-</div>
-
-<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
-
-<script src="data.js"></script>
-<script src="app.js"></script>
+<a class="skip" href="#main-content">انتقل للمحتوى / Skip to content</a>
+<div id="app"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<noscript>mahal needs JavaScript. / يحتاج جافاسكريبت.</noscript>
+<script defer src="assets/kit-theme.js"></script>
+<script defer src="assets/qrcode.js"></script>
+<script defer src="kit-base.js"></script>
+<script defer src="config.js"></script>
+<script defer src="catalog-data.js"></script>
+<script defer src="shop-core.js"></script>
+<script defer src="shop-i18n.js"></script>
+<script defer src="i18n.js"></script>
+<script defer src="shop-ui.js"></script>
+<script defer src="app.js"></script>
 </body>
 </html>
